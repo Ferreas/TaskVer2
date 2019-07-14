@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace TaskVer2
 {
-    class ReversePN
+    class PN
     {
         private static string SpecialActions = "+-*/><=()|&";
         /// <summary>
-        /// Преобразует обычное математическое выр-е в обратную польскую запись
+        /// Преобразует обычное математическое выражение в обратную польскую запись
         /// </summary>
         /// <param name="initialString"> Начальное выражение </param>
         /// <returns> Обратная польская запись выражения </returns>
@@ -28,7 +27,7 @@ namespace TaskVer2
 
             for (int i = 0; i < initialString.Length; i++)
             {
-                // Если текущий символ - число, добавляем его к результирующей строке
+                // Если текущий символ - не операция и не скобка, добавляем его к результирующей строке
                 //
                 if (!SpecialActions.Contains(initialString[i]))
                 {
@@ -36,7 +35,7 @@ namespace TaskVer2
                     continue;
                 }
 
-                // Если текущий символ - операция (+, -, *, /)
+                // Если текущий символ - операция
                 //
                 if (IsOperation(initialString[i]))
                 {
@@ -106,20 +105,20 @@ namespace TaskVer2
         }
 
         /// <summary>
-        /// Вычисляет результат выражения, записанного в обратной польской нотации
+        /// Выводит последовательность выполнения, используя запись в обратной польской нотации
         /// </summary>
         /// <param name="rpnString"> Обратная польская запись выражения </param>
         /// <returns> Результат выражения </returns>
-        public static void CalculateRPN(string rpnString)
+        public static void ProceedRPN(string rpnString)
         {
-            // В стеке будут храниться цифры из ОПН
+            // В стеке будут храниться операнды
             Stack<string> numbersStack = new Stack<string>();
 
             string op1, op2;
 
             for (int i = 0; i < rpnString.Length; i++)
             {
-                // Если символ - цифра, помещаем его в стек,
+                // Если символ - не операция и не скобка,
                 if (!SpecialActions.Contains(rpnString[i]))
                     numbersStack.Push(rpnString[i].ToString());
 
@@ -133,12 +132,10 @@ namespace TaskVer2
                     numbersStack.Push(ApplyOperation(rpnString[i], op1, op2));
                 }
             }
-
-            // Возвращаем результат
         }
 
         /// <summary>
-        /// Проверяет, является ли символ математической операцией
+        /// Проверяет, является ли символ операцией
         /// </summary>
         /// <param name="c"> Символ для проверки</param>
         /// <returns> true, если символ - операция, иначе false</returns>
@@ -182,7 +179,7 @@ namespace TaskVer2
         }
 
         /// <summary>
-        /// Выполняет матем. операцию над двумя числами
+        /// Выполняет операцию над двумя операндами
         /// </summary>
         /// <param name="operation"> Символ операции </param>
         /// <param name="op1"> Первый операнд </param>
@@ -191,7 +188,7 @@ namespace TaskVer2
         private static string ApplyOperation(char operation, string op1, string op2)
         {
             Console.WriteLine(op1 + operation + op2);
-            return "("+ op1 + operation + op2 + ")";
+            return op1 + operation + op2;
         }
     }
 
@@ -204,20 +201,21 @@ namespace TaskVer2
                 "a+b+c",
                 "a+b&c",
                 "(a + b > с | c < d) & d = e",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
+                "((a + b > с) & (c < d)) | (s+s) & (e-d|s) = e",
+                "((a + b > с) & (c < d)) & (s+s) + (e-d|s) = e",
+                "((a + b > с) & (c < d)) | (s+s) + (e-d|s) = e",
+                "a+b>c|c<d&(d=e)",
+                "a+b&a+b&a+b|a-s|a-s|a&b|a&s",
             };
 
-            string result = ReversePN.ToRPN(tests[2]);
-            Console.WriteLine("Initial Expression: " + tests[2]);
-            Console.WriteLine("RPN Expression: " + result);
-            ReversePN.CalculateRPN(result);
+            foreach (string a in tests)
+            {
+                Console.WriteLine("======================================================");
+                string result = PN.ToRPN(a);
+                Console.WriteLine("Initial Expression: " + a);
+                Console.WriteLine("RPN Expression: " + result);
+                PN.ProceedRPN(result);
+            }
         }
     }
 }
